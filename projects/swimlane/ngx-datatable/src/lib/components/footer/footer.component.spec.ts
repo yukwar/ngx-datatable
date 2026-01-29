@@ -10,6 +10,11 @@ let component: TestFixtureComponent;
 let page: Page;
 
 describe('DataTableFooterComponent', () => {
+  beforeEach(waitForAsync(() =>
+    TestBed.configureTestingModule({
+      imports: [TestFixtureComponent]
+    }).compileComponents()));
+
   beforeEach(waitForAsync(() => {
     fixture = TestBed.createComponent(TestFixtureComponent);
     component = fixture.componentInstance;
@@ -243,6 +248,7 @@ describe('DataTableFooterComponent', () => {
       </ul>
     </ng-template>
   `,
+  standalone: true,
   imports: [DataTableFooterComponent]
 })
 class TestFixtureComponent {
@@ -284,6 +290,7 @@ class Page {
   datatablePager!: DebugElement;
 
   detectChangesAndRunQueries() {
+    fixture.detectChanges();
     fixture.detectChanges();
 
     const de = fixture.debugElement;

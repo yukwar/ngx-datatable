@@ -46,6 +46,7 @@ describe('DataTableSummaryRowComponent', () => {
   function triggerChange() {
     component.ngOnChanges();
     fixture.detectChanges();
+    fixture.detectChanges();
   }
 
   describe('fixture', () => {

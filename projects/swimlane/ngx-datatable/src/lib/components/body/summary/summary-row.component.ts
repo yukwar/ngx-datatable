@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject, ChangeDetectorRef } from '@angular/core';
+import { NgIf } from '@angular/common';
 import { DataTableBodyRowComponent } from '../body-row.component';
 import { TableColumnInternal } from '../../../types/internal.types';
 
@@ -22,8 +23,8 @@ function noopSumFunc(cells: any[]): void {
 @Component({
   selector: 'datatable-summary-row',
   template: `
-    @if (summaryRow && _internalColumns) {
     <datatable-body-row
+      *ngIf="summaryRow && _internalColumns"
       tabindex="-1"
       [innerWidth]="innerWidth"
       [columns]="_internalColumns"
@@ -32,14 +33,14 @@ function noopSumFunc(cells: any[]): void {
       [rowIndex]="{ index: -1 }"
     >
     </datatable-body-row>
-    }
   `,
   host: {
     class: 'datatable-summary-row'
   },
-  imports: [DataTableBodyRowComponent]
+  imports: [NgIf, DataTableBodyRowComponent]
 })
 export class DataTableSummaryRowComponent implements OnChanges {
+  private cd = inject(ChangeDetectorRef);
   @Input() rows!: any[];
   @Input() columns!: TableColumnInternal[];
 
@@ -55,6 +56,7 @@ export class DataTableSummaryRowComponent implements OnChanges {
     }
     this.updateInternalColumns();
     this.updateValues();
+    this.cd.markForCheck();
   }
 
   private updateInternalColumns() {

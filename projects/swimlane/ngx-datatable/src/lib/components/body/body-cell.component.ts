@@ -29,6 +29,7 @@ import { CellActiveEvent, RowIndex, TableColumnInternal } from '../../types/inte
   selector: 'datatable-body-cell',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @if (column) {
     <div class="datatable-body-cell-label" [style.margin-left.px]="calcLeftMargin(column, row)">
       @if (column.checkboxable && (!displayCheck || displayCheck(row, column, value))) {
       <label class="datatable-checkbox">
@@ -71,6 +72,7 @@ import { CellActiveEvent, RowIndex, TableColumnInternal } from '../../types/inte
       </ng-template>
       }
     </div>
+    }
   `,
   styleUrl: './body-cell.component.scss',
   imports: [NgTemplateOutlet]
@@ -201,6 +203,9 @@ export class DataTableBodyCellComponent<TRow extends Row = any> implements DoChe
   @HostBinding('class')
   get columnCssClasses(): string {
     let cls = 'datatable-body-cell';
+    if (!this.column) {
+      return cls;
+    }
     if (this.column.cellClass) {
       if (typeof this.column.cellClass === 'string') {
         cls += ' ' + this.column.cellClass;
@@ -246,17 +251,17 @@ export class DataTableBodyCellComponent<TRow extends Row = any> implements DoChe
 
   @HostBinding('style.width.px')
   get width(): number {
-    return this.column.width;
+    return this.column?.width ?? 0;
   }
 
   @HostBinding('style.minWidth.px')
   get minWidth(): number | undefined {
-    return this.column.minWidth;
+    return this.column?.minWidth;
   }
 
   @HostBinding('style.maxWidth.px')
   get maxWidth(): number | undefined {
-    return this.column.maxWidth;
+    return this.column?.maxWidth;
   }
 
   @HostBinding('style.height')
@@ -436,7 +441,10 @@ export class DataTableBodyCellComponent<TRow extends Row = any> implements DoChe
     this.treeAction.emit(this.row);
   }
 
-  calcLeftMargin(column: TableColumnInternal, row: RowOrGroup<TRow>): number {
+  calcLeftMargin(column: TableColumnInternal | undefined, row: RowOrGroup<TRow>): number {
+    if (!column) {
+      return 0;
+    }
     const levelIndent = column.treeLevelIndent != null ? column.treeLevelIndent : 50;
     return column.isTreeColumn ? (row as TRow).level! * levelIndent : 0;
   }

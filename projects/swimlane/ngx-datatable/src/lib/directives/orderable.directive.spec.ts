@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Component, QueryList, ViewChildren } from '@angular/core';
+import { NgFor } from '@angular/common';
 import { By } from '@angular/platform-browser';
 
 import { OrderableDirective } from './orderable.directive';
@@ -11,12 +12,11 @@ import { toInternalColumn } from '../utils/column-helper';
   selector: 'test-fixture-component',
   template: `
     <div orderable>
-      @for (item of draggables; track $index) {
-      <div draggable [dragModel]="item"></div>
-      }
+      <div *ngFor="let item of draggables" draggable [dragModel]="item"></div>
     </div>
   `,
-  imports: [OrderableDirective, DraggableDirective]
+  standalone: true,
+  imports: [NgFor, OrderableDirective, DraggableDirective]
 })
 class TestFixtureComponent {
   draggables: TableColumnInternal[] = [];
@@ -26,6 +26,11 @@ class TestFixtureComponent {
 describe('OrderableDirective', () => {
   let fixture: ComponentFixture<TestFixtureComponent>;
   let component: TestFixtureComponent;
+
+  beforeEach(waitForAsync(() =>
+    TestBed.configureTestingModule({
+      imports: [TestFixtureComponent]
+    }).compileComponents()));
 
   beforeEach(waitForAsync(() => {
     fixture = TestBed.createComponent(TestFixtureComponent);
@@ -85,7 +90,9 @@ describe('OrderableDirective', () => {
       });
 
       it('then dragStart and dragEnd are unsubscribed from the removed draggable', () => {
-        const unsubbed = component.draggableDirectives.toArray()[0];
+        const unsubbed = fixture.debugElement
+          .queryAll(By.directive(DraggableDirective))[0]
+          .injector.get(DraggableDirective);
         component.draggables.splice(0, 1);
 
         expect(unsubbed.dragStart.isStopped).toBe(false);

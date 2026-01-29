@@ -10,6 +10,7 @@ import { toInternalColumn } from '../../utils/column-helper';
 describe('DataTableBodyRowComponent', () => {
   @Component({
     template: ` <datatable-body-row [rowIndex]="rowIndex" [row]="row" [columns]="columns" /> `,
+    standalone: true,
     imports: [DataTableBodyRowComponent]
   })
   class TestHostComponent {
@@ -39,22 +40,26 @@ describe('DataTableBodyRowComponent', () => {
   it('should apply odd/event without groups', () => {
     component.rowIndex = { index: 0 };
     fixture.detectChanges();
-    const element = fixture.debugElement.query(By.directive(DataTableBodyRowComponent))
+    let element = fixture.debugElement.query(By.directive(DataTableBodyRowComponent))
       .nativeElement as HTMLElement;
     expect(element.classList).toContain('datatable-row-even');
     component.rowIndex = { index: 3 };
     fixture.detectChanges();
+    element = fixture.debugElement.query(By.directive(DataTableBodyRowComponent))
+      .nativeElement as HTMLElement;
     expect(element.classList).toContain('datatable-row-odd');
   });
 
   it('should apply event odd/even if row is grouped', () => {
     component.rowIndex = { index: 1, indexInGroup: 0 };
     fixture.detectChanges();
-    const element = fixture.debugElement.query(By.directive(DataTableBodyRowComponent))
+    let element = fixture.debugElement.query(By.directive(DataTableBodyRowComponent))
       .nativeElement as HTMLElement;
     expect(element.classList).toContain('datatable-row-even');
     component.rowIndex = { index: 666, indexInGroup: 3 };
     fixture.detectChanges();
+    element = fixture.debugElement.query(By.directive(DataTableBodyRowComponent))
+      .nativeElement as HTMLElement;
     expect(element.classList).toContain('datatable-row-odd');
   });
 });

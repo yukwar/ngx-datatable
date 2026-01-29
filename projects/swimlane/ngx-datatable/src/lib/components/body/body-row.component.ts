@@ -30,7 +30,7 @@ import { DataTableBodyCellComponent } from './body-cell.component';
 
 @Component({
   selector: 'datatable-body-row',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     @for (colGroup of _columnsByPin; track colGroup.type) { @if (colGroup.columns.length) {
     <div
@@ -94,7 +94,14 @@ export class DataTableBodyRowComponent<TRow extends Row = any> implements DoChec
   @Input() row!: TRow;
   @Input() group?: TRow[];
   @Input() isSelected?: boolean;
-  @Input() rowIndex!: RowIndex;
+  @Input() set rowIndex(val: RowIndex) {
+    this._rowIndex = val;
+    this.cd.markForCheck();
+  }
+
+  get rowIndex(): RowIndex {
+    return this._rowIndex;
+  }
   @Input() displayCheck?: (row: TRow, column: TableColumnInternal, value?: any) => boolean;
   @Input() treeStatus?: TreeStatus = 'collapsed';
   @Input() verticalScrollVisible = false;
@@ -107,10 +114,11 @@ export class DataTableBodyRowComponent<TRow extends Row = any> implements DoChec
     if (this.isSelected) {
       cls += ' active';
     }
-    if (this.innerRowIndex % 2 !== 0) {
+    const innerRowIndex = this._rowIndex?.indexInGroup ?? this._rowIndex?.index ?? 0;
+    if (innerRowIndex % 2 !== 0) {
       cls += ' datatable-row-odd';
     }
-    if (this.innerRowIndex % 2 === 0) {
+    if (innerRowIndex % 2 === 0) {
       cls += ' datatable-row-even';
     }
     if (this.disabled) {
@@ -151,6 +159,7 @@ export class DataTableBodyRowComponent<TRow extends Row = any> implements DoChec
   _columnsByPin!: PinnedColumns[];
   _columns!: TableColumnInternal[];
   _innerWidth!: number;
+  _rowIndex!: RowIndex;
 
   private _rowDiffer: KeyValueDiffer<keyof RowOrGroup<TRow>, any> = inject(KeyValueDiffers)
     .find({})
@@ -218,10 +227,5 @@ export class DataTableBodyRowComponent<TRow extends Row = any> implements DoChec
 
   onTreeAction() {
     this.treeAction.emit();
-  }
-
-  /** Returns the row index, or if in a group, the index within a group. */
-  private get innerRowIndex(): number {
-    return this.rowIndex?.indexInGroup ?? this.rowIndex?.index ?? 0;
   }
 }

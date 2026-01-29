@@ -2,10 +2,12 @@ import {
   booleanAttribute,
   ContentChild,
   Directive,
+  DoCheck,
   inject,
   Input,
+  KeyValueDiffer,
+  KeyValueDiffers,
   numberAttribute,
-  OnChanges,
   PipeTransform,
   TemplateRef
 } from '@angular/core';
@@ -20,8 +22,12 @@ import { CellContext, HeaderCellContext, Row } from '../../types/public.types';
 @Directive({
   selector: 'ngx-datatable-column'
 })
-export class DataTableColumnDirective<TRow extends Row> implements TableColumn, OnChanges {
+export class DataTableColumnDirective<TRow extends Row> implements TableColumn, DoCheck {
   private columnChangesService = inject(ColumnChangesService);
+  private inputChangesDiffer: KeyValueDiffer<string, unknown> = inject(KeyValueDiffers)
+    .find({})
+    .create();
+  private inputChangeInitialized = false;
   @Input() name?: string;
   @Input() prop?: TableColumnProp;
   @Input({ transform: booleanAttribute }) bindAsUnsafeHtml?: boolean;
@@ -102,13 +108,47 @@ export class DataTableColumnDirective<TRow extends Row> implements TableColumn, 
     return this._ghostCellTemplateInput || this._ghostCellTemplateQuery;
   }
 
-  private isFirstChange = true;
-
-  ngOnChanges() {
-    if (this.isFirstChange) {
-      this.isFirstChange = false;
-    } else {
-      this.columnChangesService.onInputChange();
+  ngDoCheck() {
+    const changes = this.inputChangesDiffer.diff(this.getInputSnapshot());
+    if (!changes) {
+      return;
     }
+    if (this.inputChangeInitialized) {
+      this.columnChangesService.onInputChange();
+    } else {
+      this.inputChangeInitialized = true;
+    }
+  }
+
+  private getInputSnapshot(): Record<string, unknown> {
+    return {
+      name: this.name,
+      prop: this.prop,
+      bindAsUnsafeHtml: this.bindAsUnsafeHtml,
+      frozenLeft: this.frozenLeft,
+      frozenRight: this.frozenRight,
+      flexGrow: this.flexGrow,
+      resizeable: this.resizeable,
+      comparator: this.comparator,
+      pipe: this.pipe,
+      sortable: this.sortable,
+      draggable: this.draggable,
+      canAutoResize: this.canAutoResize,
+      minWidth: this.minWidth,
+      width: this.width,
+      maxWidth: this.maxWidth,
+      checkboxable: this.checkboxable,
+      headerCheckboxable: this.headerCheckboxable,
+      headerClass: this.headerClass,
+      cellClass: this.cellClass,
+      isTreeColumn: this.isTreeColumn,
+      treeLevelIndent: this.treeLevelIndent,
+      summaryFunc: this.summaryFunc,
+      summaryTemplate: this.summaryTemplate,
+      cellTemplate: this._cellTemplateInput,
+      headerTemplate: this._headerTemplateInput,
+      treeToggleTemplate: this._treeToggleTemplateInput,
+      ghostCellTemplate: this._ghostCellTemplateInput
+    };
   }
 }

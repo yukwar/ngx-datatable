@@ -16,6 +16,7 @@ import Spy = jasmine.Spy;
       <ng-template></ng-template>
     </ngx-datatable-column>
   `,
+  standalone: true,
   imports: [DataTableColumnDirective],
   providers: [ColumnChangesService] // usually provided by the table.component
 })
@@ -26,6 +27,11 @@ class TestFixtureComponent {
 describe('DataTableColumnDirective', () => {
   let fixture: ComponentFixture<TestFixtureComponent>;
   let component: TestFixtureComponent;
+
+  beforeEach(waitForAsync(() =>
+    TestBed.configureTestingModule({
+      imports: [TestFixtureComponent]
+    }).compileComponents()));
 
   beforeEach(waitForAsync(() => {
     fixture = TestBed.createComponent(TestFixtureComponent);

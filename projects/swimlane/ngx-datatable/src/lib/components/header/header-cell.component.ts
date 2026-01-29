@@ -40,7 +40,7 @@ import { getPositionFromEvent } from '../../utils/events';
       <label class="datatable-checkbox">
         <input type="checkbox" [checked]="allRowsSelected" (change)="select.emit()" />
       </label>
-      } @if (column.headerTemplate) {
+      } @if (column?.headerTemplate) {
       <ng-template
         [ngTemplateOutlet]="column.headerTemplate"
         [ngTemplateOutletContext]="cellContext"
@@ -55,7 +55,7 @@ import { getPositionFromEvent } from '../../utils/events';
       }
       <span (click)="onSort()" [class]="sortClass"> </span>
     </div>
-    @if (column.resizeable) {
+    @if (column?.resizeable) {
     <span
       class="resize-handle"
       (mousedown)="onMousedown($event)"
@@ -65,7 +65,7 @@ import { getPositionFromEvent } from '../../utils/events';
   `,
   host: {
     'class': 'datatable-header-cell',
-    '[attr.resizeable]': 'column.resizeable'
+    '[attr.resizeable]': 'column?.resizeable'
   },
   styleUrl: './header-cell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -135,13 +135,13 @@ export class DataTableHeaderCellComponent implements OnInit, OnDestroy {
   get columnCssClasses(): string {
     let cls = 'datatable-header-cell';
 
-    if (this.column.sortable) {
+    if (this.column?.sortable) {
       cls += ' sortable';
     }
-    if (this.column.resizeable) {
+    if (this.column?.resizeable) {
       cls += ' resizeable';
     }
-    if (this.column.headerClass) {
+    if (this.column?.headerClass) {
       if (typeof this.column.headerClass === 'string') {
         cls += ' ' + this.column.headerClass;
       } else if (typeof this.column.headerClass === 'function') {
@@ -183,16 +183,16 @@ export class DataTableHeaderCellComponent implements OnInit, OnDestroy {
 
   @HostBinding('style.maxWidth.px')
   get maxWidth(): number | undefined {
-    return this.column.maxWidth;
+    return this.column?.maxWidth;
   }
 
   @HostBinding('style.width.px')
   get width(): number {
-    return this.column.width;
+    return this.column?.width ?? 0;
   }
 
   @HostBinding('tabindex') get tabindex(): number {
-    return this.column.sortable ? 0 : -1;
+    return this.column?.sortable ? 0 : -1;
   }
 
   get isCheckboxable(): boolean | undefined {
@@ -204,7 +204,7 @@ export class DataTableHeaderCellComponent implements OnInit, OnDestroy {
 
   cellContext: HeaderCellContext;
 
-  private _column!: TableColumnInternal;
+  private _column: TableColumnInternal = {} as TableColumnInternal;
   private _sorts!: SortPropDir[];
   private element = inject(ElementRef).nativeElement;
   private subscription?: Subscription;
@@ -258,7 +258,7 @@ export class DataTableHeaderCellComponent implements OnInit, OnDestroy {
   // Counter to reset sort once user sort asc and desc.
   private totalSortStatesApplied = 0;
   onSort(): void {
-    if (!this.column.sortable) {
+    if (!this.column?.sortable) {
       return;
     }
 
@@ -277,7 +277,7 @@ export class DataTableHeaderCellComponent implements OnInit, OnDestroy {
   }
 
   calcSortClass(sortDir: SortDirection | undefined): string | undefined {
-    if (!this.cellContext.column.sortable) {
+    if (!this.cellContext?.column || !this.cellContext.column.sortable) {
       return undefined;
     }
     if (sortDir === SortDirection.asc) {

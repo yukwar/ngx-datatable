@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DatatableComponent } from './datatable.component';
 import { DataTableBodyRowComponent } from './body/body-row.component';
@@ -16,6 +16,7 @@ describe('DatatableComponent', () => {
 
   @Component({
     template: ` <ngx-datatable [columns]="columns" [rows]="rows" [sorts]="sorts"></ngx-datatable> `,
+    standalone: true,
     imports: [DatatableComponent]
   })
   class TestFixtureComponent {
@@ -23,6 +24,12 @@ describe('DatatableComponent', () => {
     rows: Record<string, any>[] = [];
     sorts: any[] = [];
   }
+
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: [TestFixtureComponent]
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TestFixtureComponent);
@@ -383,6 +390,7 @@ describe('DatatableComponent With Custom Templates', () => {
         </ngx-datatable-column>
       </ngx-datatable>
     `,
+    standalone: true,
     imports: [
       DatatableComponent,
       DataTableColumnDirective,
@@ -399,6 +407,11 @@ describe('DatatableComponent With Custom Templates', () => {
 
   let fixture: ComponentFixture<TestFixtureComponentWithCustomTemplates>;
   let component: TestFixtureComponentWithCustomTemplates;
+
+  beforeEach(waitForAsync(() =>
+    TestBed.configureTestingModule({
+      imports: [TestFixtureComponentWithCustomTemplates]
+    }).compileComponents()));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TestFixtureComponentWithCustomTemplates);
@@ -440,6 +453,7 @@ describe('DatatableComponent With Custom Templates', () => {
      * switch to displaying `age` column as the second column in the table
      */
     component.columnTwoProp = 'age';
+    fixture.detectChanges();
     fixture.detectChanges();
 
     expect(textContent({ row: 1, column: 2 }, fixture)).toContain('35');

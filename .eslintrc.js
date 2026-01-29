@@ -46,7 +46,8 @@ module.exports = {
           'error',
           {
             'type': 'attribute',
-            'style': 'camelCase'
+            'style': 'kebab-case',
+            'prefix': 'ngx-datatable'
           }
         ],
         '@angular-eslint/component-selector': [

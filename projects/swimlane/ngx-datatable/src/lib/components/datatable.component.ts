@@ -123,6 +123,9 @@ export class DatatableComponent<TRow extends Row = any>
     this.rowDiffer.diff([] as any);
     if (val) {
       this._internalRows = [...val];
+      if (!this.externalSorting && this.sorts?.length && this._internalColumns) {
+        this.sortInternalRows();
+      }
     }
   }
 
@@ -865,11 +868,8 @@ export class DatatableComponent<TRow extends Row = any>
         this.groupedRows = this.groupArrayBy(this._rows, this._groupRowsBy);
       }
       if (rowDiffers) {
-        queueMicrotask(() => {
-          this._rowInitDone.set(true);
-          this.recalculate();
-          this.cd.markForCheck();
-        });
+        this._rowInitDone.set(true);
+        this.recalculate();
       }
 
       this.recalculatePages();
@@ -1274,6 +1274,7 @@ export class DatatableComponent<TRow extends Row = any>
       this.columnChangesService.columnInputChanges$.subscribe(() => {
         if (this.columnTemplates) {
           this.columnTemplates.notifyOnChanges();
+          this.translateColumns(this.columnTemplates);
         }
       })
     );
